@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube 视频下载器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 标题部分 -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">YouTube 视频下载器</h1>
+            <p class="text-gray-600">输入 YouTube 视频链接，轻松下载高质量视频</p>
+        </div>
+
+        <!-- 下载表单 -->
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6 mb-8">
+            <form id="downloadForm" class="space-y-4">
+                <div>
+                    <input type="text" 
+                           id="url" 
+                           name="url" 
+                           placeholder="请输入 YouTube 视频链接" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <button type="submit" 
+                        class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center">
+                    <span>下载视频</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- 加载提示 -->
+        <div id="loading" class="loading">
+            正在下载视频，请稍候...
+        </div>
+
+        <!-- 下载列表 -->
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">已下载视频</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for video in videos|reverse %}
+                <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+                    <!-- 视频预览 -->
+                    <div class="w-full mb-4">
+                        <video controls class="w-full rounded-lg aspect-video object-cover">
+                            <source src="/downloads/{{ video.local_path.split('/')[-1] }}" type="video/mp4">
+                            您的浏览器不支持视频标签
+                        </video>
+                    </div>
+                    <!-- 视频信息 -->
+                    <div class="flex-1 space-y-3">
+                        <h3 class="text-xl font-semibold text-gray-800 line-clamp-2">{{ video.title }}</h3>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <p><span class="font-medium">作者：</span>{{ video.author }}</p>
+                            <p><span class="font-medium">时长：</span>{{ video.duration }}</p>
+                            <p><span class="font-medium">文件大小：</span>{{ video.file_size }}</p>
+                            <p><span class="font-medium">下载时间：</span>{{ video.download_time }}</p>
+                            <p class="truncate"><span class="font-medium">存储路径：</span>{{ video.local_path }}</p>
+                        </div>
+                        <p class="text-gray-600 text-sm line-clamp-3">{{ video.description }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('downloadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loading = document.getElementById('loading');
+            const form = e.target;
+            const url = form.url.value;
+
+            if (!url) {
+                alert('请输入视频链接');
+                return;
+            }
+
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `url=${encodeURIComponent(url)}`
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('下载失败：' + data.message);
+                }
+            } catch (error) {
+                alert('下载出错：' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

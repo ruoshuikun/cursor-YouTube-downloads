@@ -1,0 +1,32 @@
+# 下载文件目录
+downloads/
+download_history.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+eggs/
+*.egg-info/
+.eggs/
+*.egg
+
+# 虚拟环境
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
