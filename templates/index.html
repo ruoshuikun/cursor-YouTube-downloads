@@ -59,7 +59,7 @@
                     <!-- 视频预览 -->
                     <div class="w-full mb-4">
                         <video controls class="w-full rounded-lg aspect-video object-cover">
-                            <source src="/downloads/{{ video.local_path.split('/')[-1] }}" type="video/mp4">
+                            <source src="{{ video.local_path }}" type="video/mp4">
                             您的浏览器不支持视频标签
                         </video>
                     </div>
